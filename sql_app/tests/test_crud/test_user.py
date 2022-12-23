@@ -1,3 +1,4 @@
+import pytest
 from fastapi.encoders import jsonable_encoder
 from sql_app.tests.utils.utils import random_string, random_email
 from sql_app.crud.user_crud import *
@@ -10,7 +11,7 @@ def equal_seq(seq_1: list, seq_2: list):
     )
 
 
-def test_create_user(db):
+def test_create_user(db: Session):
     email = random_email()
     password = random_string()
     tested_user = UserCreate(email=email, password=password)
@@ -32,7 +33,8 @@ def test_get_user(db):
     assert db_user_2.email == db_user.email
     assert jsonable_encoder(db_user_2) == jsonable_encoder(db_user)
 
-def test_get_user_by_email(db):
+
+def test_get_user_by_email(db: Session):
     email = random_email()
     password = random_string()
     tested_user = UserCreate(email=email, password=password)
@@ -44,7 +46,8 @@ def test_get_user_by_email(db):
     assert db_user_2.email == db_user.email
     assert jsonable_encoder(db_user_2) == jsonable_encoder(db_user)
 
-def test_get_users(db):
+
+def test_get_users(db: Session):
     number = 5
     email_list = (random_email() for _ in range(number))
     password_list = (random_string() for _ in range(number))

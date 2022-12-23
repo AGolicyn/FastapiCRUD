@@ -1,11 +1,19 @@
-from pydantic import BaseModel
-from .item import Item
+import os
+
+from pydantic import BaseModel, EmailStr
+from sql_app.schemas.item import Item
+
 
 class UserBase(BaseModel):
-    email: str
+    email: EmailStr
+    username: str | None = None
+    first_name: str | None = None
+    second_name: str | None = None
+
 
 class UserCreate(UserBase):
     password: str
+
 
 class User(UserBase):
     id: int
@@ -14,4 +22,3 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
-

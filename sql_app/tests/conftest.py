@@ -6,6 +6,7 @@ from sql_app.db.session import *
 from sql_app.models.user import User
 from sql_app.models.item import Item
 from sql_app.api.deps import get_db
+from sql_app.tests.utils.utils import random_email
 
 SQLALCHEMY_TESTBASE_URL = "postgresql://artem:123@localhost:5432/test"
 engine = create_engine(SQLALCHEMY_TESTBASE_URL)
@@ -41,8 +42,8 @@ def client():
 
 @pytest.fixture
 def fill_db_with_data(db: Session):
-    db_user_1 = User(email='test@email', hashed_pswd='test_pass')
-    db_user_2 = User(email='test_2@email', hashed_pswd='test_pass_2')
+    db_user_1 = User(email=random_email(), hashed_pswd='test_pass')
+    db_user_2 = User(email=random_email(), hashed_pswd='test_pass_2')
     db.add(db_user_1)
     db.add(db_user_2)
     db.commit()

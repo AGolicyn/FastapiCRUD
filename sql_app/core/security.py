@@ -10,13 +10,13 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from sql_app.api.deps import get_db
 
-
 SECRET_KEY = '2f2db14e6f82b71f39879d2f7e1d753b76d8c7a376aa6b057e6eb3215c03c19b'
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -53,10 +53,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credential_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")

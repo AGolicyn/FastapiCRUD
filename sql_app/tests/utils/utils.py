@@ -6,4 +6,5 @@ def random_string():
     return ''.join(random.choices(string.ascii_lowercase, k=N))
 
 def random_email():
-    return random_string() + '@' + random_string()[:5]
+    num = random.randint(1, 1000)
+    return f'artem{num}@gamil.com'

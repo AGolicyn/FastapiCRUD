@@ -1,32 +1,35 @@
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from sql_app.tests.utils.utils import random_email
+
+user_email = random_email()
 
 
-def test_create_user(client: TestClient):
+def test_create_user(client: TestClient, db: Session):
     response = client.post(
         "/users/",
-        json={"email": "deadpool@example.com", "password": "chimichangas4life"},
+        json={"email": user_email, "password": "chimichangas4life"},
     )
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["email"] == "deadpool@example.com"
+    assert data["email"] == user_email
     assert "id" in data
     user_id = data["id"]
 
     response = client.get(f"/users/{user_id}")
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["email"] == "deadpool@example.com"
+    assert data["email"] == user_email
     assert data["id"] == user_id
 
-
-def test_get_one_user(client, db, fill_db_with_data):
+def test_get_one_user(client: TestClient, db: Session, fill_db_with_data):
     '''Check '''
     db_user = [*fill_db_with_data]
     response = client.get(f"/users/{db_user[0].id}")
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["email"] == "test@email"
+    assert data["email"] == db_user[0].email
     assert data["id"] == db_user[0].id
     assert len(data["items"]) == 2
 

@@ -3,6 +3,7 @@ from sql_app.schemas.user import *
 from sql_app.crud.item_crud import *
 from sql_app.crud.user_crud import *
 
+
 def test_create_item(db: Session):
     # Create user at first
     email = random_email()
