@@ -16,7 +16,6 @@ def test_create_user(db: Session):
     password = random_string()
     tested_user = UserCreate(email=email, password=password)
     db_user = create_user(db=db, user=tested_user)
-
     assert db_user.email == email
     assert hasattr(db_user, 'hashed_pswd')
 
@@ -26,7 +25,6 @@ def test_get_user(db):
     password = random_string()
     tested_user = UserCreate(email=email, password=password)
     db_user = create_user(db=db, user=tested_user)
-
     db_user_2 = get_user(db, db_user.id)
 
     assert db_user_2

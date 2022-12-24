@@ -13,6 +13,7 @@ def test_create_user(client: TestClient, db: Session):
     )
     assert response.status_code == 200, response.text
     data = response.json()
+    print(data['id'])
     assert data["email"] == user_email
     assert "id" in data
     user_id = data["id"]

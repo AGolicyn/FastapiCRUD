@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
-from sql_app.models.item import Item
+from sql_app.models.models import Item
 from sql_app.schemas.item import ItemCreate
+from sqlalchemy import select, insert
 
 
 def get_items(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Item).offset(skip).limit(limit).all()
+    return db.execute(select(Item).offset(skip).limit(limit)).scalars().all()
 
 
 def create_item(db: Session, item: ItemCreate, user_id: int):

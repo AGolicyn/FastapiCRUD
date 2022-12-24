@@ -6,19 +6,11 @@ from sql_app.schemas.user import UserCreate
 from sql_app.tests.utils.utils import random_string, random_email
 
 
-email = random_email()
-@pytest.fixture
-def get_and_create_user(db: Session):
-    test_user = {"email": email, "password": "test_pass"}
-    create_user(db=db, user=UserCreate(**test_user))
-    return test_user
-
-
 def test_login_with_correct_credentials(client: TestClient, get_and_create_user):
     # Create user at first
     test_user = get_and_create_user
 
-    response = client.post("/token/", data={"username": email, "password": "test_pass"})
+    response = client.post("/token/", data={"username": test_user.email, "password": "test_pass"})
 
     assert response.status_code == 200
     data = response.json()
@@ -28,7 +20,7 @@ def test_login_with_correct_credentials(client: TestClient, get_and_create_user)
 
 def test_login_with_invalid_username(client: TestClient, get_and_create_user):
     # Create user at first
-    response = client.post("/token/", data={"username": "invalid_name", "password": "test_pass"})
+    response = client.post("/token/", data={"username": "invalid_name", "password": 'test_pass'})
 
     assert response.status_code == 401
     assert response.json()["detail"] == 'Incorrect username or password'
@@ -37,7 +29,7 @@ def test_login_with_invalid_username(client: TestClient, get_and_create_user):
 def test_login_with_invalid_password(client: TestClient,  get_and_create_user):
     # Create user at first
 
-    response = client.post("/token/", data={"username": email, "password": "invalid_pass"})
+    response = client.post("/token/", data={"username": get_and_create_user.email, "password": "invalid_pass"})
 
     assert response.status_code == 401
     assert response.json()["detail"] == 'Incorrect username or password'

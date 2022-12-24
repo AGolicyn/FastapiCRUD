@@ -1,10 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 from sql_app.main import *
 from sql_app.db.session import *
-from sql_app.models.user import User
-from sql_app.models.item import Item
+from sql_app.models import models
+from sql_app.models.models import Item
 from sql_app.api.deps import get_db
 from sql_app.tests.utils.utils import random_email
 
@@ -27,12 +28,12 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture
 def db():
-    """Постоянное соединение от начала и до конца теста, очищает базу по завершению"""
+    """Cоединение от начала и до конца теста, очищает базу по завершению"""
     db = TestingSessionLocal()
     try:
         yield db
     finally:
-        db.execute(f'TRUNCATE {table_names} CASCADE')
+        db.execute(text('TRUNCATE users, items CASCADE'))
         db.commit()
         db.close()
 
@@ -42,8 +43,8 @@ def client():
 
 @pytest.fixture
 def fill_db_with_data(db: Session):
-    db_user_1 = User(email=random_email(), hashed_pswd='test_pass')
-    db_user_2 = User(email=random_email(), hashed_pswd='test_pass_2')
+    db_user_1 = models.User(email=random_email(), hashed_pswd='test_pass')
+    db_user_2 = models.User(email=random_email(), hashed_pswd='test_pass_2')
     db.add(db_user_1)
     db.add(db_user_2)
     db.commit()
@@ -67,3 +68,13 @@ def fill_db_with_data(db: Session):
         db.add(item)
     db.commit()
     return db_user_1, db_user_2
+
+
+
+from sql_app.crud.user_crud import create_user
+from sql_app.schemas.user import UserCreate
+@pytest.fixture
+def get_and_create_user(db: Session):
+    test_user = {"email": random_email(), "password": "test_pass"}
+    db_user = create_user(db=db, user=UserCreate(**test_user))
+    return db_user
