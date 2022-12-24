@@ -20,29 +20,22 @@ def test_create_user(db: Session):
     assert hasattr(db_user, 'hashed_pswd')
 
 
-def test_get_user(db):
-    email = random_email()
-    password = random_string()
-    tested_user = UserCreate(email=email, password=password)
-    db_user = create_user(db=db, user=tested_user)
-    db_user_2 = get_user(db, db_user.id)
+def test_get_user(db, get_and_create_user):
+    # Create user at first
+    db_user_2 = get_user(db, get_and_create_user.id)
 
     assert db_user_2
-    assert db_user_2.email == db_user.email
-    assert jsonable_encoder(db_user_2) == jsonable_encoder(db_user)
+    assert db_user_2.email == get_and_create_user.email
+    assert jsonable_encoder(db_user_2) == jsonable_encoder(get_and_create_user)
 
 
-def test_get_user_by_email(db: Session):
-    email = random_email()
-    password = random_string()
-    tested_user = UserCreate(email=email, password=password)
-    db_user = create_user(db=db, user=tested_user)
-
-    db_user_2 = get_user_by_email(db, db_user.email)
+def test_get_user_by_email(db: Session, get_and_create_user):
+    # Create user at first
+    db_user_2 = get_user_by_email(db, get_and_create_user.email)
 
     assert db_user_2
-    assert db_user_2.email == db_user.email
-    assert jsonable_encoder(db_user_2) == jsonable_encoder(db_user)
+    assert db_user_2.email == get_and_create_user.email
+    assert jsonable_encoder(db_user_2) == jsonable_encoder(get_and_create_user)
 
 
 def test_get_users(db: Session):

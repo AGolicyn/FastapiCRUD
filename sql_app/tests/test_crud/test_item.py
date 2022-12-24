@@ -1,5 +1,4 @@
-from sql_app.tests.utils.utils import random_string, random_email
-from sql_app.schemas.user import *
+from sql_app.tests.utils.utils import random_string
 from sql_app.crud.item_crud import *
 from sql_app.crud.user_crud import *
 
