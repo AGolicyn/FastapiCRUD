@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sql_app.models.models import Item
 from sql_app.schemas.item import ItemCreate
-from sqlalchemy import select, insert
+from sqlalchemy import select
 
 
 def get_items(db: Session, skip: int = 0, limit: int = 100):

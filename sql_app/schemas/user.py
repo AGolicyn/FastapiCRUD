@@ -4,7 +4,7 @@ from sql_app.schemas.item import Item
 
 class UserBase(BaseModel):
     email: EmailStr
-    # username: str | None = None
+    username: str | None = None
 
 
 class UserCreate(UserBase):
