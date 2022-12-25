@@ -10,9 +10,7 @@ from sqlalchemy.orm import Session
 from sql_app.schemas.token import Token
 from sql_app.schemas.user import User
 from sql_app.core.security import get_current_user
-import sys
 
-print(sys.path)
 app = FastAPI()
 app.include_router(api_router)
 

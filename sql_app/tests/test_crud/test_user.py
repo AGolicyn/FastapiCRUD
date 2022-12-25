@@ -20,6 +20,13 @@ def test_create_user(db: Session):
     assert hasattr(db_user, 'hashed_pswd')
 
 
+def test_create_with_duplicate_email(db: Session, get_and_create_user):
+    in_base_email = get_and_create_user.email
+    duplicate_user = UserCreate(email=in_base_email, password=random_string())
+    with pytest.raises(HTTPException):
+        create_user(db=db, user=duplicate_user)
+
+
 def test_get_user(db, get_and_create_user):
     # Create user at first
     db_user_2 = get_user(db, get_and_create_user.id)
@@ -54,3 +61,26 @@ def test_get_users(db: Session):
     tested_users = get_users(db=db)
     assert len(tested_users) == number
     assert equal_seq(db_users, tested_users)
+
+
+def test_delete_user(db: Session, get_and_create_user):
+    users_number = get_users(db=db)
+    assert len(users_number) == 1
+
+    delete_user_by_id(db=db, current_user=get_and_create_user, user_id=get_and_create_user.id)
+
+    users_number = get_users(db=db)
+    assert len(users_number) == 0
+
+
+def test_delete_user_by_unauthorized_user(db: Session, get_and_create_user):
+    class fake_user:
+        id = 0
+
+    with pytest.raises(HTTPException):
+        delete_user_by_id(db=db, current_user=fake_user, user_id=get_and_create_user.id)
+
+
+def test_delete_incorrect_user_id(db: Session, get_and_create_user):
+    with pytest.raises(HTTPException):
+        delete_user_by_id(db=db, current_user=get_and_create_user, user_id=0)

@@ -1,8 +1,11 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sql_app.models import models
-from sql_app.schemas.user import UserCreate
+from sql_app.schemas.user import UserCreate, UserBase
+from sql_app.schemas.token import Status
 from sql_app.core.security import get_password_hash
+from sqlalchemy.exc import IntegrityError
 
 
 def get_user(db: Session, user_id: int):
@@ -23,7 +26,27 @@ def create_user(db: Session, user: UserCreate):
     hashed_pswd = get_password_hash(user.password)
     db_user = models.User(email=user.email, hashed_pswd=hashed_pswd)
     db.add(db_user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=401, detail=f"Sorry, this username already exists.")
     db.refresh(db_user)
     return db_user
 
+
+def delete_user_by_id(db: Session, current_user, user_id: int):
+    db_user = db.execute(select(models.User)
+                         .filter(models.User.id == user_id)).scalar_one_or_none()
+    if not db_user:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
+    if db_user.id == current_user.id:
+        deleted_user_id = db.execute(delete(models.User)
+                                     .where(models.User.id == user_id)
+                                     .returning(models.User.id)).scalar_one_or_none()
+        db.commit()
+        if deleted_user_id:
+            return Status(message=f'Deleted user {deleted_user_id}')
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
+
+    raise HTTPException(status_code=403, detail=f"Not authorized to delete")
