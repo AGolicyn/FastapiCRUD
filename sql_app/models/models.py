@@ -10,12 +10,14 @@ class User(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    # todo username: Mapped[str | None] = mapped_column(unique=True)
+    username: Mapped[str | None] = mapped_column(unique=True)
     email: Mapped[str] = mapped_column(unique=True, index=True)
     hashed_pswd: Mapped[str] = mapped_column()
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    items: Mapped[list['Item']] = relationship(back_populates='owner')
+    items: Mapped[list['Item']] = relationship(back_populates='owner',
+                                               cascade='all, delete-orphan',
+                                               passive_deletes=True)
 
 
 class Item(Base):
@@ -24,6 +26,6 @@ class Item(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(index=True)
     description: Mapped[str | None] = mapped_column(index=True)
-    owner_id = mapped_column(ForeignKey('users.id'))
+    owner_id = mapped_column(ForeignKey('users.id', ondelete="CASCADE"))
 
     owner: Mapped[User] = relationship(back_populates='items')

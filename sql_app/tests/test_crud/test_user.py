@@ -63,14 +63,16 @@ def test_get_users(db: Session):
     assert equal_seq(db_users, tested_users)
 
 
-def test_delete_user(db: Session, get_and_create_user):
+def test_delete_user(db: Session, fill_db_with_data):
+    current_user = fill_db_with_data[0]
+    users_number = get_users(db=db)
+    assert len(users_number) == 2
+    print(current_user.items)
+
+    delete_user_by_id(db=db, current_user=current_user, user_id=current_user.id)
+
     users_number = get_users(db=db)
     assert len(users_number) == 1
-
-    delete_user_by_id(db=db, current_user=get_and_create_user, user_id=get_and_create_user.id)
-
-    users_number = get_users(db=db)
-    assert len(users_number) == 0
 
 
 def test_delete_user_by_unauthorized_user(db: Session, get_and_create_user):

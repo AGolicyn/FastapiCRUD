@@ -16,9 +16,8 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from sql_app.models import *
+from sql_app.models.models import *
 target_metadata = Base.metadata
-# target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
