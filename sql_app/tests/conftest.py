@@ -50,8 +50,6 @@ def fill_db_with_data(db: Session):
     db.add(db_user_1)
     db.add(db_user_2)
     db.commit()
-    db.refresh(db_user_1)
-    db.refresh(db_user_2)
 
     db_item_1_1 = models.Item(title='test_title_1_user_1',
                               description='test_description_1_user_1',

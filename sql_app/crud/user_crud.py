@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, insert, update
 from sql_app.models import models
 from sql_app.schemas.user import UserCreate, UserBase
 from sql_app.schemas.token import Status
@@ -24,14 +24,14 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def create_user(db: Session, user: UserCreate):
     hashed_pswd = get_password_hash(user.password)
-    db_user = models.User(email=user.email, hashed_pswd=hashed_pswd)
-    db.add(db_user)
     try:
+        db_user = db.execute(insert(models.User)
+                             .values(email=user.email, hashed_pswd=hashed_pswd)
+                             .returning(models.User)).scalar_one_or_none()
         db.commit()
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=401, detail=f"Sorry, this username already exists.")
-    db.refresh(db_user)
     return db_user
 
 
@@ -50,3 +50,4 @@ def delete_user_by_id(db: Session, current_user, user_id: int):
         raise HTTPException(status_code=404, detail=f"User {user_id} not found")
 
     raise HTTPException(status_code=403, detail=f"Not authorized to delete")
+

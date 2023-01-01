@@ -2,6 +2,7 @@ import pytest
 from fastapi.encoders import jsonable_encoder
 from sql_app.tests.utils.utils import random_string, random_email
 from sql_app.crud.user_crud import *
+from sql_app.crud.item_crud import *
 
 
 def equal_seq(seq_1: list, seq_2: list):
@@ -64,15 +65,24 @@ def test_get_users(db: Session):
 
 
 def test_delete_user(db: Session, fill_db_with_data):
+    # Create db with 2 users and 4 items
     current_user = fill_db_with_data[0]
     users_number = get_users(db=db)
     assert len(users_number) == 2
-    print(current_user.items)
+
+    # Remember item id's that will be removed
+    deleted_items_ids = []
+    for item in current_user.items:
+        deleted_items_ids.append(item.id)
 
     delete_user_by_id(db=db, current_user=current_user, user_id=current_user.id)
 
     users_number = get_users(db=db)
     assert len(users_number) == 1
+    # Check deleted items not in database
+    items = get_items(db=db)
+    for item in items:
+        assert item.id not in deleted_items_ids
 
 
 def test_delete_user_by_unauthorized_user(db: Session, get_and_create_user):
@@ -86,3 +96,5 @@ def test_delete_user_by_unauthorized_user(db: Session, get_and_create_user):
 def test_delete_incorrect_user_id(db: Session, get_and_create_user):
     with pytest.raises(HTTPException):
         delete_user_by_id(db=db, current_user=get_and_create_user, user_id=0)
+
+
