@@ -62,10 +62,65 @@ def test_delete_item_by_unauthorized_user(db, fill_db_with_data):
     data = fill_db_with_data
 
     class fake_user:
-        id: 0
+        id = 0
 
     with pytest.raises(HTTPException):
         delete_item(db=db, item_id=data[0].id, current_user=fake_user)
 
     assert len(data[0].items) == 2
     assert len(data[1].items) == 2
+
+
+def test_update_item(db, fill_db_with_data):
+    db_item = update_item(db=db,
+                          item=UpdateItem(
+                              id=fill_db_with_data[0].items[0].id,
+                              title='New title',
+                              description='New Description'),
+                          current_user=fill_db_with_data[0])
+
+    assert db_item.title == 'New title'
+    assert db_item.description == 'New Description'
+
+
+def test_update_item_title_only(db, fill_db_with_data):
+    db_item = update_item(db=db,
+                          item=UpdateItem(
+                              id=fill_db_with_data[0].items[0].id,
+                              title='New title'),
+                          current_user=fill_db_with_data[0])
+
+    assert db_item.title == 'New title'
+    assert db_item.description == 'test_description_1_user_1'
+
+
+def test_update_item_description_only(db, fill_db_with_data):
+    db_item = update_item(db=db,
+                          item=UpdateItem(
+                              id=fill_db_with_data[0].items[0].id,
+                              description='New Description'),
+                          current_user=fill_db_with_data[0])
+
+    assert db_item.title == 'test_title_1_user_1'
+    assert db_item.description == 'New Description'
+
+
+def test_update_with_invalid_item_id(db, fill_db_with_data):
+    with pytest.raises(HTTPException):
+        update_item(db=db,
+                    item=UpdateItem(
+                        id=0,
+                        description='New Description'),
+                    current_user=fill_db_with_data[0])
+
+
+def test_update_by_unauthorized_user(db, fill_db_with_data):
+    class fake_user:
+        id = 0
+
+    with pytest.raises(HTTPException):
+        update_item(db=db,
+                    item=UpdateItem(
+                        id=fill_db_with_data[0].items[0].id,
+                        description='New Description'),
+                    current_user=fake_user)
