@@ -12,15 +12,16 @@ def get_items(db: Session, skip: int = 0, limit: int = 100):
     return db.execute(select(models.Item).offset(skip).limit(limit)).scalars().all()
 
 
-def create_item(db: Session, item: ItemCreate, user_id: int):
-    db_item = db.execute(insert(models.Item)
-                         .values(title=item.title,
-                                 description=item.description,
-                                 owner_id=user_id)
-                         .returning(models.Item)).scalar_one_or_none()
-    db.commit()
-    return db_item
-
+def create_item(db: Session, item: ItemCreate, user_id: int, current_user: models.User):
+    if user_id == current_user.id:
+        db_item = db.execute(insert(models.Item)
+                             .values(title=item.title,
+                                     description=item.description,
+                                     owner_id=user_id)
+                             .returning(models.Item)).scalar_one_or_none()
+        db.commit()
+        return db_item
+    raise HTTPException(status_code=403, detail=f"Not authorized to delete")
 
 def delete_item(db: Session, item_id: int, current_user: models.User):
     db_item: models.Item = db.execute(

@@ -1,14 +1,16 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from sql_app.crud import item_crud
+from sql_app.schemas import item
 
 
 def test_delete_item(client: TestClient, db: Session, get_and_create_user):
     # Add item to current user
-    created_item = client.post(f'/users/{get_and_create_user.id}/items', json={
-        "title": "some_title",
-        "description": "some_description"
-    })
-    created_item = created_item.json()
+    created_item = item_crud.create_item(db=db,
+                                         item=item.ItemCreate(**{"title": "some_title",
+                                                                 "description": "some_description"}),
+                                         user_id=get_and_create_user.id,
+                                         current_user=get_and_create_user)
     assert len(get_and_create_user.items) == 1
 
     # Get access token
@@ -25,7 +27,7 @@ def test_delete_item(client: TestClient, db: Session, get_and_create_user):
 
     assert response.status_code == 200
     deleted_item = response.json()
-    assert deleted_item["message"] == f'Deleted user {created_item["id"]}'
+    assert deleted_item["message"] == f'Deleted user {created_item.id}'
 
     response = client.get('/items')
     response = response.json()
@@ -34,11 +36,12 @@ def test_delete_item(client: TestClient, db: Session, get_and_create_user):
 
 def test_update_item(client: TestClient, db: Session, get_and_create_user):
     # Add item to current user
-    created_item = client.post(f'/users/{get_and_create_user.id}/items', json={
-        "title": "some_title",
-        "description": "some_description"
-    })
-    created_item = created_item.json()
+    created_item = item_crud.create_item(db=db,
+                                         item=item.ItemCreate(**{"title": "some_title",
+                                                                 "description": "some_description"}),
+                                         user_id=get_and_create_user.id,
+                                         current_user=get_and_create_user)
+
     assert len(get_and_create_user.items) == 1
 
     # Get access token
@@ -51,7 +54,7 @@ def test_update_item(client: TestClient, db: Session, get_and_create_user):
     # Update item
     response = client.patch('/items/',
                             json={
-                                "id": created_item["id"],
+                                "id": created_item.id,
                                 "title": "New title",
                                 "description": "New description"
                             },

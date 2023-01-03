@@ -13,8 +13,11 @@ router = APIRouter(
 
 
 @router.post('/users/{user_id}/items', response_model=item.Item)
-def create_item_for_user(item: item.ItemCreate, user_id: int, db: Session = Depends(get_db)):
-    return item_crud.create_item(item=item, user_id=user_id, db=db)
+def create_item_for_user(item: item.ItemCreate,
+                         user_id: int,
+                         db: Session = Depends(get_db),
+                         current_user: user.User = Depends(get_current_user)):
+    return item_crud.create_item(item=item, user_id=user_id, db=db, current_user=current_user)
 
 
 @router.get('/items/', response_model=list[item.Item])

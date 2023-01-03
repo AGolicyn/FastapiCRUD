@@ -14,7 +14,7 @@ def test_create_item(db: Session, get_and_create_user):
     description = random_string()
     item = ItemCreate(title=title, description=description)
 
-    item_db = create_item(db=db, item=item, user_id=get_and_create_user.id)
+    item_db = create_item(db=db, item=item, user_id=get_and_create_user.id, current_user=get_and_create_user)
 
     assert item_db.title == title
     assert item_db.description == description
@@ -26,7 +26,7 @@ def test_get_items(db, get_and_create_user):
     title = random_string()
     description = random_string()
     item = ItemCreate(title=title, description=description)
-    create_item(db=db, item=item, user_id=get_and_create_user.id)
+    create_item(db=db, item=item, user_id=get_and_create_user.id, current_user=get_and_create_user)
 
     test_item = get_items(db=db)
 
